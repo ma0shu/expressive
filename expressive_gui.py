@@ -567,6 +567,97 @@ def create_gui():
                 forward=lambda v: tenc_args.bias.type(v) if v is not None else None,
             ).tooltip_md(tenc_args.bias.help)
 
+    # Voic parameters
+    voic_args = getExpressionLoader("voic").args
+    voic_info = getExpressionLoader("voic").expression_info
+    with ui.card().classes("w-full").bind_visibility_from(
+        state["expressions"]["voic"], "selected"
+    ):
+        ui.label(voic_info).classes("text-lg font-bold")
+
+        with ui.grid(columns=3).classes("w-full"):
+            ui.select(
+                label=_("Backend"), options=voic_args.backend.choices,
+            ).bind_value(state["expressions"]["voic"], "backend").tooltip_md(voic_args.backend.help)
+
+            ui.number(label=_("Align Radius"), min=1, format="%d").bind_value(
+                state["expressions"]["voic"], "align_radius",
+                forward=lambda v: voic_args.align_radius.type(v) if v is not None else None,
+            ).tooltip_md(voic_args.align_radius.help)
+
+            ui.number(label=_("Smoothness"), min=0, format="%d").bind_value(
+                state["expressions"]["voic"], "smoothness",
+                forward=lambda v: voic_args.smoothness.type(v) if v is not None else None,
+            ).tooltip_md(voic_args.smoothness.help)
+
+            ui.number(label=_("Scaler"), min=0.0, step=0.1, format="%.1f").bind_value(
+                state["expressions"]["voic"], "scaler",
+                forward=lambda v: voic_args.scaler.type(v) if v is not None else None,
+            ).tooltip_md(voic_args.scaler.help)
+            
+            ui.number(label=_("Bias"), format="%.1f").bind_value(
+                state["expressions"]["voic"], "bias",
+                forward=lambda v: voic_args.bias.type(v) if v is not None else None,
+            ).tooltip_md(voic_args.bias.help)
+
+    # Brec parameters
+    brec_args = getExpressionLoader("brec").args
+    brec_info = getExpressionLoader("brec").expression_info
+    with ui.card().classes("w-full").bind_visibility_from(
+        state["expressions"]["brec"], "selected"
+    ):
+        ui.label(brec_info).classes("text-lg font-bold")
+
+        with ui.grid(columns=3).classes("w-full"):
+            ui.number(label=_("Align Radius"), min=1, format="%d").bind_value(
+                state["expressions"]["brec"], "align_radius",
+                forward=lambda v: brec_args.align_radius.type(v) if v is not None else None,
+            ).tooltip_md(brec_args.align_radius.help)
+
+            ui.number(label=_("Smoothness"), min=0, format="%d").bind_value(
+                state["expressions"]["brec"], "smoothness",
+                forward=lambda v: brec_args.smoothness.type(v) if v is not None else None,
+            ).tooltip_md(brec_args.smoothness.help)
+
+            ui.number(label=_("Scaler"), min=0.0, step=0.1, format="%.1f").bind_value(
+                state["expressions"]["brec"], "scaler",
+                forward=lambda v: brec_args.scaler.type(v) if v is not None else None,
+            ).tooltip_md(brec_args.scaler.help)
+
+            ui.number(label=_("Bias"), format="%d").bind_value(
+                state["expressions"]["brec"], "bias",
+                forward=lambda v: brec_args.bias.type(v) if v is not None else None,
+            ).tooltip_md(brec_args.bias.help)
+
+    # Ene parameters
+    ene_args = getExpressionLoader("ene").args
+    ene_info = getExpressionLoader("ene").expression_info
+    with ui.card().classes("w-full").bind_visibility_from(
+        state["expressions"]["ene"], "selected"
+    ):
+        ui.label(ene_info).classes("text-lg font-bold")
+
+        with ui.grid(columns=3).classes("w-full"):
+            ui.number(label=_("Align Radius"), min=1, format="%d").bind_value(
+                state["expressions"]["ene"], "align_radius",
+                forward=lambda v: ene_args.align_radius.type(v) if v is not None else None,
+            ).tooltip_md(ene_args.align_radius.help)
+
+            ui.number(label=_("Smoothness"), min=0, format="%d").bind_value(
+                state["expressions"]["ene"], "smoothness",
+                forward=lambda v: ene_args.smoothness.type(v) if v is not None else None,
+            ).tooltip_md(ene_args.smoothness.help)
+
+            ui.number(label=_("Scaler"), min=0.0, step=0.1, format="%.1f").bind_value(
+                state["expressions"]["ene"], "scaler",
+                forward=lambda v: ene_args.scaler.type(v) if v is not None else None,
+            ).tooltip_md(ene_args.scaler.help)
+
+            ui.number(label=_("Bias"), format="%d").bind_value(
+                state["expressions"]["ene"], "bias",
+                forward=lambda v: ene_args.bias.type(v) if v is not None else None,
+            ).tooltip_md(ene_args.bias.help)
+
     # Add the config buttons above the Process button
     with ui.row().classes("w-full justify-between"):
         ui.button(

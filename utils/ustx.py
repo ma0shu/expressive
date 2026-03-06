@@ -37,7 +37,7 @@ def save_ustx(ustx_dict, ustx_path):
 def edit_ustx_expression_curve(
     ustx_dict, ustx_track_number, expression, tick_seq, exp_seq
 ):
-    if expression in ["dyn", "pitd", "tenc"]:
+    if expression in ["dyn", "pitd", "tenc", "voic", "brec", "ene"]:
         track_idx = ustx_track_number - 1  # track index starts from 0
         track = ustx_dict["voice_parts"][track_idx]
         if "curves" not in track.keys():
