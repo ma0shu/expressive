@@ -7,7 +7,10 @@ from contextlib import contextmanager
 from os.path import splitext, basename
 
 from __version__ import VERSION
-from utils.cli import ArgumentDefaultsWrappedTextRichHelpFormatter
+from utils.cli import (
+    add_expression_args_group,
+    ArgumentDefaultsWrappedTextRichHelpFormatter,
+)
 from expressions.base import getExpressionLoader, get_registered_expressions
 
 
@@ -17,6 +20,10 @@ def process_expressions(
     ustx_input: str,
     ustx_output: str,
     track_number: int,
+    ref_start: str | None,
+    ref_end: str | None,
+    utau_start: str | None,
+    utau_end: str | None,
     expressions: list[dict],
 ):
     """
@@ -28,6 +35,10 @@ def process_expressions(
         ustx_input (str): Path to the input USTX project file.
         ustx_output (str): Path to save the processed USTX project file.
         track_number (int): Track number to apply expressions.
+        ref_start (str | None): Start time of the reference audio in M:S format. Defaults to None.
+        ref_end (str | None): End time of the reference audio in M:S format. Defaults to None.
+        utau_start (str | None): Start time of the UTAU audio in M:S format. Defaults to None.
+        utau_end (str | None): End time of the UTAU audio in M:S format. Defaults to None.
         expressions (list[dict]): List of expressions to process, each containing:
             - "expression": Expression type (e.g., "dyn", "pitd", "tenc").
             - Additional parameters specific to the expression type.
@@ -67,7 +78,11 @@ expressions = [
         if exp_type not in get_registered_expressions():
             raise ValueError(f"Expression '{exp_type}' is not supported.")
 
-        loader = getExpressionLoader(exp_type)(ref_wav, utau_wav, ustx_output)
+        loader = getExpressionLoader(exp_type)(
+            ref_wav, utau_wav, ustx_output,
+            ref_start=ref_start, ref_end=ref_end,
+            utau_start=utau_start, utau_end=utau_end,
+        )
         loader_args = {
             arg_name: exp.get(arg_name, arg.default)
             for arg_name, arg in loader.get_args_dict().items()
@@ -131,8 +146,12 @@ def main():
     parser.add_argument("-i", "--ustx_input",   type=general_args.ustx_path.type,    required=True, help=general_args.ustx_path.help)  # noqa: E501
     parser.add_argument("-o", "--ustx_output",  type=str,                            required=True, help="Path to save the processed `.ustx` file")  # noqa: E501
     parser.add_argument("-t", "--track_number", type=general_args.track_number.type, required=True, help=general_args.track_number.help)  # noqa: E501
-
-    parser.add_argument("-e", "--expression", type=str, action="append", required=True, choices=get_registered_expressions(), 
+    parser.add_argument("--utau_start",         type=general_args.utau_start.type,   default=general_args.utau_start.default, help=general_args.utau_start.help)  # noqa: E501
+    parser.add_argument("--utau_end",           type=general_args.utau_end.type,     default=general_args.utau_end.default,   help=general_args.utau_end.help)    # noqa: E501
+    parser.add_argument("--ref_start",          type=general_args.ref_start.type,    default=general_args.ref_start.default,  help=general_args.ref_start.help)   # noqa: E501
+    parser.add_argument("--ref_end",            type=general_args.ref_end.type,      default=general_args.ref_end.default,    help=general_args.ref_end.help)     # noqa: E501
+ 
+    parser.add_argument("-e", "--expression", type=str, action="append", required=True, choices=get_registered_expressions(),
                         help="**Expression(s)** to apply. Repeat the flag for multiple expressions (e.g., `-e dyn -e pitd`)")
     parser.add_argument("--version", action="version", version=f"%(prog)s v{VERSION}")
 
@@ -141,12 +160,7 @@ def main():
     get_expression_args = lambda exp_name: getExpressionLoader(exp_name).get_args_dict()
 
     for exp_name in expression_names:
-        exp_info = getExpressionLoader(exp_name).expression_info
-        group = parser.add_argument_group(f"[{exp_name.upper()}] {exp_info} Expression")
-        for arg_name, arg in get_expression_args(exp_name).items():
-            group.add_argument(f"--{exp_name}.{arg_name}",
-                                type=arg.type, default=arg.default, help=arg.help,
-                                choices=arg.choices)
+        add_expression_args_group(parser, exp_name)
 
     # Parse arguments
     args = parser.parse_args()
@@ -166,7 +180,10 @@ def main():
         try:
             process_expressions(
                 args.utau_wav, args.ref_wav, args.ustx_input,
-                args.ustx_output, args.track_number, expressions
+                args.ustx_output, args.track_number,
+                args.ref_start, args.ref_end,
+                args.utau_start, args.utau_end,
+                expressions,
             )
         except Exception as e:
             logger_app.error(f"Error occurred during processing: {e}")
